@@ -49,5 +49,5 @@ grafana: setup
 events: setup
 	kubectl get events --sort-by=.metadata.creationTimestamp
 
-clean: setup
+clean-kind: setup
 	kind delete clusters $(cluster)
