@@ -1,0 +1,6 @@
+cluster := csharp
+all:
+	kind create cluster --name $(cluster) --config=.github/workflows/assets/kind.yaml
+
+clean:
+	kind delete clusters $(cluster)

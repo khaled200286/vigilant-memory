@@ -6,8 +6,9 @@ services:
     container_name: demo
     restart: unless-stopped
     build:
-      context: app/
+      context: src/
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - VERSION=v1.0.0
     ports:
       - 80:80

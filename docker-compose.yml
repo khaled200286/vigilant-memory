@@ -4,7 +4,7 @@ services:
     image: demo
     container_name: demo
     build:
-      context: app/
+      context: src/
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:

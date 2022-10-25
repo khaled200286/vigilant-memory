@@ -51,10 +51,13 @@ namespace DemoApi
             app.UseAuthorization();
 	    app.UseHttpMetrics(options => { options.ReduceStatusCodeCardinality(); });
 
+	    string ver = Environment.GetEnvironmentVariable("VERSION") ?? "v.0.0.1";
+	    System.Console.WriteLine("Running: " + ver);
+
             app.UseEndpoints(endpoints =>
             {
 		endpoints.MapGet("/", async context => { 
-				await context.Response.WriteAsync("Hello from DemoApi!");
+				await context.Response.WriteAsync("Hello from DemoApi " + ver + " !");
 				});
                 endpoints.MapControllers();
 		endpoints.MapMetrics();
