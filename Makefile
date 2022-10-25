@@ -7,9 +7,13 @@ MAKEFLAGS += --silent
 build: ## Build containers
 	docker-compose build
 
-.PHONY: up
-up: ## Create and start containers
+.PHONY: up-develop
+up-develop: ## Create and start develop containers
 	docker-compose up -d
+
+.PHONY: up-production
+up-production: build ## Create and start production containers
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml up --no-deps -d
 
 .PHONY: logs
 logs: ## View output from containers

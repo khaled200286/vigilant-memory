@@ -1,0 +1,13 @@
+# https://docs.docker.com/compose/production/#modify-your-compose-file-for-production
+version: '3.4'
+services:
+  app:
+    image: demo
+    container_name: demo
+    restart: unless-stopped
+    build:
+      context: app/
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    ports:
+      - 80:80

@@ -1,4 +1,5 @@
 using Prometheus;
+using Microsoft.AspNetCore.Http;
 
 using System;
 using System.Collections.Generic;
@@ -52,6 +53,9 @@ namespace DemoApi
 
             app.UseEndpoints(endpoints =>
             {
+		endpoints.MapGet("/", async context => { 
+				await context.Response.WriteAsync("Hello from DemoApi!");
+				});
                 endpoints.MapControllers();
 		endpoints.MapMetrics();
             });
