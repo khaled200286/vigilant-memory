@@ -1,0 +1,46 @@
+name: ci
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - '*'
+      - '!main'
+    paths-ignore:
+      - '**/README.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: src
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Unit test
+        run: dotnet test --no-build --verbosity normal
+
+  docker-compose-test:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Docker build and run
+        run: |
+          make up-production
+      - name: Docker test
+        id: result
+        run: |
+          make test

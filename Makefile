@@ -33,7 +33,7 @@ clean: stop ## Stop and remove containers, networks, images, and volumes
 
 .PHONY: test
 test: ## Test app
-	[ -f ./tests/test.sh ] && ./tests/test.sh || true
+	[ -f ./tests/test.sh ] && ./tests/test.sh
 
 help:
 	cat $(MAKEFILE_LIST) | grep -e "^[a-zA-Z_\-]*: *.*## *" | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

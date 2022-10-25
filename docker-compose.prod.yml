@@ -1,4 +1,3 @@
-# https://docs.docker.com/compose/production/#modify-your-compose-file-for-production
 version: '3.4'
 services:
   app:
