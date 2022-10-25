@@ -6,6 +6,7 @@ MAKEFLAGS += --silent
 .PHONY: build
 build: ## Build containers
 	docker-compose build
+	docker tag demo:latest demo:v0.0.1
 
 .PHONY: up-develop
 up-develop: ## Create and start develop containers
