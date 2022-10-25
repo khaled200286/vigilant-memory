@@ -28,7 +28,7 @@ clean: stop ## Stop and remove containers, networks, images, and volumes
 	docker-compose down --volumes --remove-orphans
 
 .PHONY: test
-test: up ## Test app
+test: ## Test app
 	[ -f ./tests/test.sh ] && ./tests/test.sh || true
 
 help:
