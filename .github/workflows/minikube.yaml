@@ -43,3 +43,4 @@ jobs:
           minikube service example --url
           echo "------------------opening the service------------------"
           curl $(minikube service example --url)
+          minikube docker-env --unset

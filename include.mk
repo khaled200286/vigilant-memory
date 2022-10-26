@@ -34,14 +34,13 @@ minikube:
 	minikube start \
 		--driver=docker \
 		--kubernetes-version=$$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt) \
-		--memory=4096 --bootstrapper=kubeadm \
+		--memory=8192 --bootstrapper=kubeadm \
 		--extra-config=kubelet.authentication-token-webhook=true \
 		--extra-config=kubelet.authorization-mode=Webhook \
 		--extra-config=scheduler.address=0.0.0.0 \
 		--extra-config=controller-manager.address=0.0.0.0
-	minikube config set WantUpdateNotification false
-	minikube addons disable metrics-server
-	minikube addons list
+	#minikube addons disable metrics-server
+	#minikube addons list
 
 kubectl-init:
 	kubectl cluster-info
