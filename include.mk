@@ -33,13 +33,16 @@ minikube:
 	minikube delete || true
 	minikube start \
 		--driver=docker \
-		--kubernetes-version=$$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt) \
-		--memory=8192 --bootstrapper=kubeadm \
-		--extra-config=kubelet.authentication-token-webhook=true \
-		--extra-config=kubelet.authorization-mode=Webhook \
-		--extra-config=scheduler.address=0.0.0.0 \
-		--extra-config=controller-manager.address=0.0.0.0
+		--kubernetes-version=v1.25.2 \
+		--memory=8192 --bootstrapper=kubeadm
+		#--extra-config=kubelet.authentication-token-webhook=true \
+		#--extra-config=kubelet.authorization-mode=Webhook \
+		#--extra-config=scheduler.address=0.0.0.0 \
+		#--extra-config=controller-manager.address=0.0.0.0
+	# $$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt) \
 	#minikube addons disable metrics-server
+	minikube addons enable ingress
+	minikube addons enable ingress-dns
 	#minikube addons list
 
 kubectl-init:

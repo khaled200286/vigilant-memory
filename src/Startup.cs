@@ -1,5 +1,6 @@
 using Prometheus;
 using Microsoft.AspNetCore.Http;
+using System.Diagnostics;
 
 using System;
 using System.Collections.Generic;
@@ -49,9 +50,11 @@ namespace DemoApi
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
+
+	    // Capture metrics about all received HTTP requests.
 	    app.UseHttpMetrics(options => { options.ReduceStatusCodeCardinality(); });
 
-	    string ver = Environment.GetEnvironmentVariable("VERSION") ?? "v.0.0.1";
+	    string ver = Environment.GetEnvironmentVariable("VERSION") ?? "unknown";
 	    System.Console.WriteLine("Running: " + ver);
 
             app.UseEndpoints(endpoints =>
@@ -60,6 +63,8 @@ namespace DemoApi
 				await context.Response.WriteAsync("Hello from DemoApi " + ver + " !");
 				});
                 endpoints.MapControllers();
+		
+		// Enable the /metrics page to export Prometheus metrics
 		endpoints.MapMetrics();
             });
         }
