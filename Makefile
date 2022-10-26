@@ -1,13 +1,11 @@
-MAKEFLAGS += --silent
+#MAKEFLAGS += --silent
 
 .DEFAULT_GOAL := help
-
-GIT_COMMIT = $(shell if [ -z "`git status --porcelain`" ]; then echo git rev-parse HEAD ; else echo "dirty"; fi)
 
 .PHONY: build
 build: ## Build containers
 	docker-compose build
-	docker tag demo:latest demo:$(GIT_COMMIT)
+	if [ -z "`git status --porcelain`" ]; then docker tag demo:latest demo:$(shell git rev-parse HEAD); fi
 
 .PHONY: up-develop
 up-develop: ## Create and start develop containers
