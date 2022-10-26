@@ -40,18 +40,18 @@ ingress: setup
 prometheus: setup
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
 	helm repo update
-	helm install prometheus prometheus-community/prometheus \
+	helm  upgrade --install prometheus prometheus-community/prometheus \
 		--create-namespace --namespace=monitoring
 
 grafana: setup
 	helm repo add grafana https://grafana.github.io/helm-charts
 	helm repo update
-	helm install grafana \
+	helm upgrade --install grafana \
 		--namespace=monitoring \
 		--set=adminUser=admin \
 		--set=adminPassword=admin \
-		--set=service.type=NodePort \
 		grafana/grafana
+	#	--set=service.type=NodePort \
 
 events: setup
 	kubectl get events --sort-by=.metadata.creationTimestamp
