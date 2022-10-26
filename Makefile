@@ -1,7 +1,8 @@
-docker image prune -fMAKEFLAGS += --silent
-GIT_COMMIT = $(shell if [ -z "`git status --porcelain`" ]; then echo git rev-parse HEAD ; else echo "dirty"; fi)
+MAKEFLAGS += --silent
 
 .DEFAULT_GOAL := help
+
+GIT_COMMIT = $(shell if [ -z "`git status --porcelain`" ]; then echo git rev-parse HEAD ; else echo "dirty"; fi)
 
 .PHONY: build
 build: ## Build containers
