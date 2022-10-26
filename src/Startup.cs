@@ -46,13 +46,13 @@ namespace DemoApi
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DemoApi v1"));
             }
+	    
+	    // Capture metrics about all received HTTP requests.
+	    app.UseHttpMetrics();
 
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
-
-	    // Capture metrics about all received HTTP requests.
-	    app.UseHttpMetrics(options => { options.ReduceStatusCodeCardinality(); });
 
 	    string ver = Environment.GetEnvironmentVariable("VERSION") ?? "unknown";
 	    System.Console.WriteLine("Running: " + ver);

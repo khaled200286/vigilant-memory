@@ -7,8 +7,11 @@ on:
     paths-ignore:
       - '**/README.md'
 
+env:
+  IMAGE_NAME: local/example
+
 jobs:
-  minikube:
+  minikube-ci:
     runs-on: ubuntu-latest
     name: build and deploy to minikube
     defaults:
@@ -24,18 +27,18 @@ jobs:
       - name: Try the cluster
         run: kubectl get all -A
 
-      - name: Build image
+      - name: Build local image
         run: |
           export SHELL=/bin/bash
           eval $(minikube -p minikube docker-env)
-          docker build -f ./Dockerfile -t local/example .
+          docker build -f ./Dockerfile -t ${{ env.IMAGE_NAME }} .
           echo -n "verifying images:"
-          docker images
+          docker image ls ${{ env.IMAGE_NAME }}
 
       - name: Deploy to minikube
         run:
           kubectl apply -f ../strategies/demo/minikube.yaml
-          sleep 3
+          kubectl wait --for=condition=Ready pods --timeout=300s -l "app=example"
 
       - name: Test service URLs
         run: |
@@ -44,3 +47,4 @@ jobs:
           echo "------------------opening the service------------------"
           curl $(minikube service example --url)
           eval $(minikube docker-env --unset)
+          minikube delete

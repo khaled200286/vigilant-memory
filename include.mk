@@ -70,9 +70,9 @@ grafana:
 	helm upgrade --install grafana \
 		--namespace=monitoring \
 		--set=adminUser=admin \
+		--set=service.type=NodePort \
 		--set=adminPassword=admin \
 		grafana/grafana
-	#	--set=service.type=NodePort \
 
 events:
 	kubectl get events --sort-by=.metadata.creationTimestamp
