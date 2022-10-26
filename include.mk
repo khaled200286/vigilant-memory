@@ -23,17 +23,19 @@ minikube:
 	echo "You are about to create minikube cluster."
 	echo "Are you sure? (Press Enter to continue or Ctrl+C to abort) "
 	read _
+	eval $$(minikube docker-env --unset) || true
 	minikube delete || true
 	minikube start \
 		--driver=docker \
 		--kubernetes-version=$$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt) \
 		--memory=8192 --bootstrapper=kubeadm
 	minikube addons disable metrics-server
-	minikube addons enable ingress
-	minikube addons enable ingress-dns
+	#minikube addons enable ingress
+	#minikube addons enable ingress-dns
 	#minikube addons list
 	
-minikube-clean:	
+minikube-clean:
+	eval $$(minikube docker-env --unset)
 	minikube delete
 
 kubectl-init:
