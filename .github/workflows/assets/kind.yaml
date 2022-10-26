@@ -8,7 +8,7 @@ networking:
   disableDefaultCNI: true
 nodes:
   - role: control-plane
-    #image: kindest/node:v1.25.2
+    image: kindest/node:v1.24.0
     kubeadmConfigPatches:
       - |
         kind: InitConfiguration
@@ -17,8 +17,8 @@ nodes:
             node-labels: "ingress-ready=true"
     extraPortMappings:
       - containerPort: 80
-        hostPort: 80
+        hostPort: 8080
         protocol: TCP
       - containerPort: 443
-        hostPort: 443
+        hostPort: 8443
         protocol: TCP

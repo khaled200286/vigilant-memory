@@ -1,12 +1,12 @@
-ARGS = $(filter-out $@,$(MAKECMDGOALS))
-MAKEFLAGS += --silent
+docker image prune -fMAKEFLAGS += --silent
+GIT_COMMIT = $(shell if [ -z "`git status --porcelain`" ]; then echo git rev-parse HEAD ; else echo "dirty"; fi)
 
 .DEFAULT_GOAL := help
 
 .PHONY: build
 build: ## Build containers
 	docker-compose build
-	docker tag demo:latest demo:v0.0.1
+	docker tag demo:latest demo:$(GIT_COMMIT)
 
 .PHONY: up-develop
 up-develop: ## Create and start develop containers
@@ -31,6 +31,8 @@ stop: ## Stop containers
 .PHONY: clean
 clean: stop ## Stop and remove containers, networks, images, and volumes
 	docker-compose down --volumes --remove-orphans
+	docker system prune -f
+	docker image prune -f
 
 .PHONY: test
 test: ## Test app

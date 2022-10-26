@@ -1,5 +1,3 @@
-cluster := csharp
-
 setup:
 	if ! [ -x "$$(command -v kubectl)" ]; then \
 		curl -LO "https://dl.k8s.io/release/$$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"; \
@@ -16,10 +14,14 @@ setup:
 	#source <(kubectl completion zsh)
 	alias k="kubectl"
 
+cluster := demo
 kind: setup
-	kind create cluster --name $(cluster) --config=.github/workflows/assets/kind.yaml
+	kind create cluster --name $(cluster) --config=.github/workflows/assets/kind.yaml #--retain
+	# kind export logs --name $(cluster) || #docker logs $(cluster)-control-plane
+	kind get clusters
 	kubectl config set-context $(cluster) --namespace default
 	kubectl cluster-info
+	kubectl get nodes
 	kubectl wait --for=condition=Ready pods --all --all-namespaces --timeout=300s
 	kubectl get all -A	
 	
