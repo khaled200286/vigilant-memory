@@ -1,9 +1,4 @@
-ifeq ($(OS),Windows_NT)
-    echo "Unsupported"
-		exit 1
-endif
-
-setup:
+setup-linux:
 	if ! [ -x "$$(command -v kubectl)" ]; then \
 		curl -LO "https://dl.k8s.io/release/$$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"; \
 		sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl; \
@@ -16,34 +11,58 @@ setup:
 		chmod +x ./kind; \
 		sudo mv ./kind /usr/local/bin/kind; \
 	fi
+	if ! [ -x "$$(command -v minikube)" ]; then \
+		curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64; \
+	        sudo install minikube-linux-amd64 /usr/local/bin/minikube; \
+		rm -rf minikube-linux-amd64; \
+	fi
 	#source <(kubectl completion zsh)
 	alias k="kubectl"
 
 cluster := demo
-kind: setup
+kind:
 	kind create cluster --name $(cluster) --config=.github/workflows/assets/kind.yaml #--retain
 	# kind export logs --name $(cluster) || #docker logs $(cluster)-control-plane
 	kind get clusters
-	kubectl config set-context $(cluster) --namespace default
+	kubectl config set-context kind-$(cluster) --namespace default
+
+minikube:
+	echo "You are about to create minikube cluster."
+	echo "Are you sure? (Press Enter to continue or Ctrl+C to abort) "
+	read _
+	minikube delete || true
+	minikube start \
+		--driver=docker \
+		--kubernetes-version=$$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt) \
+		--memory=4096 --bootstrapper=kubeadm \
+		--extra-config=kubelet.authentication-token-webhook=true \
+		--extra-config=kubelet.authorization-mode=Webhook \
+		--extra-config=scheduler.address=0.0.0.0 \
+		--extra-config=controller-manager.address=0.0.0.0
+	minikube config set WantUpdateNotification false
+	minikube addons disable metrics-server
+	minikube addons list
+
+kubectl-init:
 	kubectl cluster-info
 	kubectl get nodes
 	kubectl wait --for=condition=Ready pods --all --all-namespaces --timeout=300s
-	kubectl get all -A	
-	
-ingress: setup
+	kubectl get all -A
+
+kind-ingress:
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 	kubectl wait --namespace ingress-nginx \
 		--for=condition=ready pod \
 		--selector=app.kubernetes.io/component=controller \
 		--timeout=90s
 
-prometheus: setup
+prometheus:
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
 	helm repo update
 	helm  upgrade --install prometheus prometheus-community/prometheus \
 		--create-namespace --namespace=monitoring
 
-grafana: setup
+grafana:
 	helm repo add grafana https://grafana.github.io/helm-charts
 	helm repo update
 	helm upgrade --install grafana \
@@ -53,8 +72,8 @@ grafana: setup
 		grafana/grafana
 	#	--set=service.type=NodePort \
 
-events: setup
+events:
 	kubectl get events --sort-by=.metadata.creationTimestamp
 
-clean-kind: setup
+clean-kind: 
 	kind delete clusters $(cluster)
