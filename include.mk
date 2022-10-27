@@ -28,6 +28,7 @@ minikube:
 	minikube start \
 		--driver=docker \
 		--kubernetes-version=$$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt) \
+		 --extra-config=kubeadm.node-name=minikube --extra-config=kubelet.hostname-override=minikube \
 		--memory=8192 --bootstrapper=kubeadm
 	minikube addons disable metrics-server
 	#minikube addons enable ingress
