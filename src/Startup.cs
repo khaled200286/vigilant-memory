@@ -46,7 +46,11 @@ namespace DemoApi
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WeatherForecastApi v1"));
             }
-	    
+	    else
+            {
+        	app.UseExceptionHandler("/error");
+    	    }
+
 	    // Capture metrics about all received HTTP requests.
 	    app.UseHttpMetrics();
 

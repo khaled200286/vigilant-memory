@@ -10,6 +10,7 @@ setup-linux:
 	fi
 	#source <(kubectl completion zsh)
 	alias k="kubectl"
+	echo "$@: done"
 
 minikube:
 	echo "You are about to create minikube cluster."
