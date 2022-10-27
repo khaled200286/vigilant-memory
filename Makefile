@@ -78,7 +78,11 @@ weather-forecast-api-deploy:
 	kubectl apply -f ./deploy/minikube/manifest.yaml
 	kubectl wait --for=condition=Ready pods --timeout=300s -l "app=weather-forecast-api"
 
+weather-forecast-api-open:
+	minikube service weather-forecast-api
+
 weather-forecast-api-status:
+	kubectl get all -o wide
 	for pod in $$(kubectl get po --output=jsonpath={.items..metadata.name}); do echo $$pod && kubectl exec -it $$pod -- env; done
 
 clean:
