@@ -59,9 +59,13 @@ namespace DemoApi
 
             app.UseEndpoints(endpoints =>
             {
-		// endpoints.Redirect("/", "/WeatherForecast");
 		endpoints.MapGet("/version", async context => { 
 				await context.Response.WriteAsync(ver);
+				});
+
+		// endpoints.Redirect("/", "/WeatherForecast");
+		endpoints.MapGet("/", async context => {
+        			await context.Response.WriteAsync("WeatherForecastApi");
 				});
 
                 endpoints.MapControllers();
