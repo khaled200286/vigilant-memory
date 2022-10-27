@@ -14,16 +14,13 @@ on:
       - '**/README.md'
 
 env:
-  IMAGE_NAME: local/example
+  APP: weather-forecast-api
+  IMAGE_NAME: minikube/${{ env.APP }}
 
 jobs:
   minikube-ci:
     runs-on: ubuntu-latest
     name: build and deploy to minikube
-    defaults:
-      run:
-        shell: bash
-        working-directory: src
 
     steps:
       - uses: actions/checkout@v2
@@ -37,20 +34,21 @@ jobs:
         run: |
           export SHELL=/bin/bash
           eval $(minikube -p minikube docker-env)
+          cd src
           docker build -f ./Dockerfile -t ${{ env.IMAGE_NAME }} .
           echo -n "verifying images:"
           docker image ls ${{ env.IMAGE_NAME }}
 
       - name: Deploy app to minikube
         run:
-          kubectl apply -f ../deploy/minikube/manifest.yaml
-          kubectl wait --for=condition=Ready pods --timeout=300s -l "app=weather-forecast-api"
+          kubectl apply -f ./deploy/minikube/manifest.yaml
+          kubectl wait --for=condition=Ready pods --timeout=300s -l "app=${{ env.APP }}"
 
       - name: Test service URLs
         run: |
           minikube service list
-          minikube service example --url
+          minikube service ${{ env.APP }} --url
           echo "------------------opening the service------------------"
-          curl $(minikube service weather-forecast-api --url)
+          curl $(minikube service ${{ env.APP }} --url)/
           eval $(minikube docker-env --unset)
           minikube delete
