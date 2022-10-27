@@ -70,6 +70,9 @@ get-events:
 test: ## Test app
 	[ -f ./tests/test.sh ] && ./tests/test.sh
 
+weather-forecast-api-build:
+	cd src; ./minikube-build-local.sh; cd -
+
 weather-forecast-api-deploy:
 	kubectl apply -f ./deploy/minikube/manifest.yaml
 	kubectl wait --for=condition=Ready pods --timeout=300s -l "app=weather-forecast-api"
