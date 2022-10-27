@@ -34,6 +34,9 @@ minikube:
 	#minikube addons enable ingress
 	#minikube addons enable ingress-dns
 	#minikube addons list
+
+minikube-status:
+	minikube service list
 	
 minikube-clean:
 	eval $$(minikube docker-env --unset)
@@ -48,6 +51,7 @@ kubectl-init:
 prometheus:
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
 	helm repo update
+	# helm show values prometheus-community/prometheus
 	helm upgrade --install prometheus prometheus-community/prometheus \
 		--create-namespace --namespace=monitoring
 

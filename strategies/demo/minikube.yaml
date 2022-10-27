@@ -14,6 +14,11 @@ spec:
     metadata:
       labels:
         app: example
+      # https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus#scraping-pod-metrics-via-annotations
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "80"
     spec:
      containers:
      - name: example
