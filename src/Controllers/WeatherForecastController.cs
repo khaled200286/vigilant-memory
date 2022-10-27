@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
+using Prometheus;
+using Prometheus.HttpMetrics;
+
 namespace DemoApi.Controllers
 {
     [ApiController]
@@ -17,6 +20,7 @@ namespace DemoApi.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+	Counter counter = Metrics.CreateCounter("w_counter", "weather forecast counter");
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
@@ -27,7 +31,8 @@ namespace DemoApi.Controllers
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+	    counter.Inc();
+	    return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),

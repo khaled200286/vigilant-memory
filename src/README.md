@@ -1,3 +1,2 @@
 # DemoApi
-
-A DotNet core sample api: http://localhost/WeatherForecast
+Source code for a DotNet core sample api: http://<...>/WeatherForecast

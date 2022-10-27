@@ -13,7 +13,6 @@ FROM ${BASE_IMAGE_REPO}/${BASE_IMAGE_BUILD}:${BASE_IMAGE_TAG} AS build-env
 WORKDIR /App
 COPY . ./
 RUN dotnet restore
-#RUN dotnet publish -c Release -o out
 RUN dotnet publish -c Release -o out --no-restore
 
 FROM base AS final

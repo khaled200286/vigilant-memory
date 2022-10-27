@@ -60,7 +60,7 @@ namespace DemoApi
             app.UseEndpoints(endpoints =>
             {
 		endpoints.MapGet("/", async context => { 
-				await context.Response.WriteAsync("Hello from DemoApi " + ver + " !");
+				await context.Response.WriteAsync(ver);
 				});
                 endpoints.MapControllers();
 		

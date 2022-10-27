@@ -1,3 +1,9 @@
+# Demo how to use minikube as CI env with github Actions
+#
+# Usage:
+# git checkout -b minikube
+# git push
+
 name: minikube
 on:
   workflow_dispatch:
@@ -35,16 +41,16 @@ jobs:
           echo -n "verifying images:"
           docker image ls ${{ env.IMAGE_NAME }}
 
-      - name: Deploy to minikube
+      - name: Deploy app to minikube
         run:
-          kubectl apply -f ../strategies/demo/minikube.yaml
-          kubectl wait --for=condition=Ready pods --timeout=300s -l "app=example"
+          kubectl apply -f ../deploy/minikube/manifest.yaml
+          kubectl wait --for=condition=Ready pods --timeout=300s -l "app=weather-forecast-api"
 
       - name: Test service URLs
         run: |
           minikube service list
           minikube service example --url
           echo "------------------opening the service------------------"
-          curl $(minikube service example --url)
+          curl $(minikube service weather-forecast-api --url)
           eval $(minikube docker-env --unset)
           minikube delete

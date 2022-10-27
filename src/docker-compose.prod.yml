@@ -1,13 +1,13 @@
 version: '3.4'
 services:
   app:
-    image: demo
-    container_name: demo
+    image: weather-forecast-api
+    container_name: weather-forecast-api
     restart: unless-stopped
     build:
-      context: src/
+      context: .
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - VERSION=v1.0.0
+      - VERSION=${TAG}
     ports:
       - 80:80

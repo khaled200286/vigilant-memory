@@ -1,10 +1,10 @@
 version: '3.4'
 services:
   app:
-    image: demo
-    container_name: demo
+    image: weather-forecast-api
+    container_name: weather-forecast-api
     build:
-      context: src/
+      context: .
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
