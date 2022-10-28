@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: weather-forecast-api
-        image: "minikube/weather-forecast-api:latest"
+        image: "minikube/weather-forecast-api:v.0.0.1"
         imagePullPolicy: Never
         ports:
          - name: http
