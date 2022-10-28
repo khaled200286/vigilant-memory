@@ -31,8 +31,8 @@ minikube: setup
 		--kubernetes-version=$$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt) \
 		--memory=8192 \
 		--bootstrapper=kubeadm \
-		 --extra-config=kubeadm.node-name=minikube \
-		 --extra-config=kubelet.hostname-override=minikube
+		--extra-config=kubeadm.node-name=minikube \
+		--extra-config=kubelet.hostname-override=minikube
 	minikube addons disable metrics-server
 	#minikube addons enable ingress
 	#minikube addons enable ingress-dns
