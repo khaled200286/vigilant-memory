@@ -1,10 +1,13 @@
-#!/bin/sh
-set -o errexit
+#!/bin/bash
+set -e
 
 service="weather-forecast-api"
-URL="$(minikube service $service --url)"
+url="$(minikube service $service --url)"
 
-while true; do 
-   curl -skX GET "$URL/WeatherForecast" -H "accept: text/plain" | xargs # | jq ". | length"
-   sleep 1 
+counter=0
+while true; do
+   counter=$((counter+1))
+   echo "$counter"
+   curl -skX GET "$url/WeatherForecast" -H "accept: text/plain" | xargs # | jq ". | length"
+   sleep 1
 done
