@@ -1,14 +1,22 @@
 APP := weather-forecast-api
 weather-forecast-api-build:
-	cd src; ./minikube-build-local.sh; cd -
+	pushd ./src; ./minikube-build-local.sh; popd
 
 weather-forecast-api-deploy-RollingUpdate:
-	kubectl apply -f ./deploy/strategies/RollingUpdate/manifest.yaml
+	kubectl apply -f ./deploy/RollingUpdate/manifest.yaml
 	kubectl wait --for=condition=Ready pods --timeout=300s -l "app=weather-forecast-api"
 
 weather-forecast-api-deploy-Recreate:
-	kubectl apply -f ./deploy/strategies/Recreate/manifest.yaml
+	kubectl apply -f ./deploy/Recreate/manifest.yaml
 	kubectl wait --for=condition=Ready pods --timeout=300s -l "app=weather-forecast-api"
+
+weather-forecast-api-deploy-BlueGreen:
+	kubectl apply -f ./deploy/BlueGreen/app-blue.yaml
+	kubectl apply -f ./deploy/BlueGreen/app-green.yaml
+	kubectl apply -f ./deploy/BlueGreen/service.yaml
+
+weather-forecast-api-deploy-BlueGreen-switch:
+	pushd ./deploy/BlueGreen; ./switch.sh; popd
 
 weather-forecast-api-clean:
 	kubectl delete all -l app=$(APP)

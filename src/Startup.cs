@@ -46,36 +46,35 @@ namespace DemoApi
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WeatherForecastApi v1"));
             }
-	    else
+            else
             {
-        	app.UseExceptionHandler("/error");
-    	    }
+              app.UseExceptionHandler("/error");
+    	      }
 
-	    // Capture metrics about all received HTTP requests.
-	    app.UseHttpMetrics();
+            // Capture metrics about all received HTTP requests.
+            app.UseHttpMetrics();
 
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
 
-	    string ver = Environment.GetEnvironmentVariable("VERSION") ?? "unknown";
-	    System.Console.WriteLine("Running: " + ver);
+            string ver = Environment.GetEnvironmentVariable("VERSION") ?? "unknown";
+            System.Console.WriteLine("Running: " + ver);
 
-            app.UseEndpoints(endpoints =>
-            {
-		endpoints.MapGet("/version", async context => { 
-				await context.Response.WriteAsync(ver);
-				});
+            app.UseEndpoints(endpoints => {
+              endpoints.MapGet("/version", async context => { 
+                await context.Response.WriteAsync(ver);
+              });
 
-		// endpoints.Redirect("/", "/WeatherForecast");
-		endpoints.MapGet("/", async context => {
-        			await context.Response.WriteAsync("WeatherForecastApi v." + ver);
-				});
+              // endpoints.Redirect("/", "/WeatherForecast");
+              endpoints.MapGet("/", async context => {
+                await context.Response.WriteAsync("WeatherForecastApi - Version:" + ver);
+              });
 
-                endpoints.MapControllers();
-		
-		// Enable the /metrics page to export Prometheus metrics
-		endpoints.MapMetrics();
+              endpoints.MapControllers();
+
+              // Enable the /metrics page to export Prometheus metrics
+              endpoints.MapMetrics();
             });
         }
     }

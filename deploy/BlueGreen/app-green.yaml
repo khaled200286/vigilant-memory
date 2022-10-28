@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-forecast-api-green
+  labels:
+    app: weather-forecast-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: weather-forecast-api
+      color: green
+  template:
+    metadata:
+      labels:
+        app: weather-forecast-api
+        color: green
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+      - name: weather-forecast-api-green
+        image: "minikube/weather-forecast-api:latest" # change here
+        # Disable bellow if using public image
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: 80
+        - name: probe
+          containerPort: 80 # TODO
+        env:
+        - name: VERSION
+          value: v0.0.2
+        livenessProbe:
+          httpGet:
+            path: /version # TODO
+            port: probe
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /version # TODO
+            port: probe
+          periodSeconds: 5
