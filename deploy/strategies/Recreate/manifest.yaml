@@ -1,0 +1,67 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-forecast-api
+  labels:
+    app: weather-forecast-api
+spec:
+  selector:
+    matchLabels:
+      app: weather-forecast-api
+  replicas: 2
+  ### 
+  strategy:
+    # Old pods are killed all at once and get replaced all at once with the new ones
+    # Supported values: "Recreate", "RollingUpdate"
+    type: "Recreate"
+  ###
+  template:
+    metadata:
+      labels:
+        app: weather-forecast-api
+      # https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus#scraping-pod-metrics-via-annotations
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+      - name: weather-forecast-api
+        image: "minikube/weather-forecast-api:latest"
+        imagePullPolicy: Never
+        ports:
+         - name: http
+           containerPort: 80
+         - name: probe
+           containerPort: 80 # TODO
+        env:
+         - name: VERSION
+           value: v1.0.1
+        livenessProbe:
+          httpGet:
+            path: /version # TODO
+            port: probe
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /version # TODO
+            port: probe
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: weather-forecast-api
+  labels:
+    app: weather-forecast-api
+spec:
+  ports:
+  - name: 80-80
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: weather-forecast-api
+  type: NodePort # ClusterIP

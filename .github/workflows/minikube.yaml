@@ -41,7 +41,7 @@ jobs:
 
       - name: Deploy app to minikube
         run:
-          kubectl apply -f ./deploy/minikube/manifest.yaml
+          kubectl apply -f ./deploy/strategies/RollingUpdate/manifest.yaml
           kubectl wait --for=condition=Ready pods --timeout=300s -l "app=${{ env.APP }}"
 
       - name: Test service URLs

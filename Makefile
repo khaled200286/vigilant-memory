@@ -1,5 +1,6 @@
 MAKEFLAGS += --silent
 
+
 setup-linux:
 	if ! [ -x "$$(command -v kubectl)" ]; then \
 		curl -LO "https://dl.k8s.io/release/$$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"; \
@@ -54,33 +55,32 @@ prometheus:
 	export POD_NAME=$$(kubectl get pods --namespace monitoring -l "app=prometheus,component=server" -o jsonpath="{.items[0].metadata.name}")
 	kubectl --namespace monitoring port-forward $$POD_NAME 9090 &
 
-grafana:
-	helm repo add grafana https://grafana.github.io/helm-charts
-	helm repo update
-	helm upgrade --install grafana \
-		--namespace=monitoring \
-		--set=adminUser=admin \
-		--set=service.type=NodePort \
-		--set=adminPassword=admin \
-		grafana/grafana
-
 .PHONY: get-events
 get-events:
 	kubectl get events --sort-by=.metadata.creationTimestamp
 
 .PHONY: test
-test: ## Test app
+test: ## Generate traffic and test app
 	[ -f ./tests/test.sh ] && ./tests/test.sh
+
+APP := weather-forecast-api
 
 weather-forecast-api-build:
 	cd src; ./minikube-build-local.sh; cd -
 
-weather-forecast-api-deploy:
-	kubectl apply -f ./deploy/minikube/manifest.yaml
+weather-forecast-api-deploy-RollingUpdate:
+	kubectl apply -f ./deploy/strategies/RollingUpdate/manifest.yaml
 	kubectl wait --for=condition=Ready pods --timeout=300s -l "app=weather-forecast-api"
 
+weather-forecast-api-deploy-Recreate:
+	kubectl apply -f ./deploy/strategies/Recreate/manifest.yaml
+	kubectl wait --for=condition=Ready pods --timeout=300s -l "app=weather-forecast-api"
+
+weather-forecast-api-clean:
+	kubectl delete all -l app=$(APP)
+
 weather-forecast-api-open:
-	minikube service weather-forecast-api
+	xdg-open $$(minikube service weather-forecast-api --url)/WeatherForecast
 
 weather-forecast-api-status:
 	kubectl get all -o wide

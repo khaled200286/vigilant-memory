@@ -10,6 +10,13 @@ spec:
     matchLabels:
       app: weather-forecast-api
   replicas: 2
+  ### 
+  # The *rolling deployment* is the standard default deployment to Kubernetes. 
+  # It works by slowly, one by one, replacing pods of the previous version of your application with pods of the new version without any cluster downtime.
+  strategy:
+    # Supported values: "Recreate", "RollingUpdate"
+    type: "RollingUpdate"
+  ###
   template:
     metadata:
       labels:
