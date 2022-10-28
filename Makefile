@@ -1,7 +1,8 @@
 MAKEFLAGS += --silent
 
+.DEFAULT_GOAL := minikube
 
-setup-linux:
+setup:
 	if ! [ -x "$$(command -v kubectl)" ]; then \
 		curl -LO "https://dl.k8s.io/release/$$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"; \
 		sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl; \
@@ -11,9 +12,10 @@ setup-linux:
 	fi
 	#source <(kubectl completion zsh)
 	alias k="kubectl"
-	echo "$@: done"
+	echo "$@: done."
 
-minikube:
+.PHONY: minikube
+minikube: setup
 	echo "You are about to create minikube cluster."
 	echo "Are you sure? (Press Enter to continue or Ctrl+C to abort) "
 	read _
@@ -52,8 +54,7 @@ prometheus:
 		--set=service.type=NodePort \
 		--create-namespace --namespace=monitoring
 	kubectl wait --for=condition=Ready pods --all -n monitoring --timeout=300s
-	export POD_NAME=$$(kubectl get pods --namespace monitoring -l "app=prometheus,component=server" -o jsonpath="{.items[0].metadata.name}")
-	kubectl --namespace monitoring port-forward $$POD_NAME 9090 &
+	killall kubectl || kubectl -n monitoring port-forward svc/prometheus-server 9090:80 &
 
 .PHONY: get-events
 get-events:
@@ -63,33 +64,13 @@ get-events:
 test: ## Generate traffic and test app
 	[ -f ./tests/test.sh ] && ./tests/test.sh
 
-APP := weather-forecast-api
-
-weather-forecast-api-build:
-	cd src; ./minikube-build-local.sh; cd -
-
-weather-forecast-api-deploy-RollingUpdate:
-	kubectl apply -f ./deploy/strategies/RollingUpdate/manifest.yaml
-	kubectl wait --for=condition=Ready pods --timeout=300s -l "app=weather-forecast-api"
-
-weather-forecast-api-deploy-Recreate:
-	kubectl apply -f ./deploy/strategies/Recreate/manifest.yaml
-	kubectl wait --for=condition=Ready pods --timeout=300s -l "app=weather-forecast-api"
-
-weather-forecast-api-clean:
-	kubectl delete all -l app=$(APP)
-
-weather-forecast-api-open:
-	xdg-open $$(minikube service weather-forecast-api --url)/WeatherForecast
-
-weather-forecast-api-status:
-	kubectl get all -o wide
-	for pod in $$(kubectl get po --output=jsonpath={.items..metadata.name}); do echo $$pod && kubectl exec -it $$pod -- env; done
-
+.PHONY: clean
 clean:
-	eval $$(minikube docker-env --unset)
-	kubectl delete -f deploy/minikube/manifest.yaml || true
 	echo "You are about to delete minikube cluster."
 	echo "Are you sure? (Press Enter to continue or Ctrl+C to abort) "
 	read _
+	eval $$(minikube docker-env --unset)
+	kubectl delete -f deploy/minikube/manifest.yaml || true
 	minikube delete
+
+-include include.mk
