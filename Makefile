@@ -50,6 +50,7 @@ prometheus:
 	helm upgrade --install prometheus prometheus-community/prometheus \
 		--set=service.type=NodePort \
 		--create-namespace --namespace=monitoring
+	kubectl wait --for=condition=Ready pods --all -n monitoring --timeout=300s
 	export POD_NAME=$$(kubectl get pods --namespace monitoring -l "app=prometheus,component=server" -o jsonpath="{.items[0].metadata.name}")
 	kubectl --namespace monitoring port-forward $$POD_NAME 9090 &
 
