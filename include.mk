@@ -27,3 +27,8 @@ weather-forecast-api-open:
 weather-forecast-api-status:
 	kubectl get all -o wide
 	for pod in $$(kubectl get po --output=jsonpath={.items..metadata.name}); do echo $$pod && kubectl exec -it $$pod -- env; done
+
+weather-forecast-api-curl-test:
+	CLUSTER_IP=$(shell kubectl get service weather-forecast-api --output=jsonpath='{.spec.clusterIPs[0]}' | xargs)
+	echo $(CLUSTER_IP)
+	#kubectl run -i --rm --image=curlimages/curl --restart=Never curl-test -- -sSL http://$$CLUSTER_IP

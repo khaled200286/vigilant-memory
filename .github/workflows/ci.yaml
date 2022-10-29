@@ -41,7 +41,7 @@ jobs:
       - name: Docker build and run
         run: |
           cd src
-          TAG=v.0.0.1 make
+          TAG=$(git rev-parse HEAD) make
           docker ps -a --no-trunc
           sleep 1
           curl -f -sL localhost/WeatherForecast
