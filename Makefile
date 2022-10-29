@@ -25,11 +25,11 @@ minikube: setup
 		rm -rf minikube-linux-amd64; \
 	fi
 	eval $$(minikube docker-env --unset) || true
-	minikube delete || true
 	minikube start \
 		--driver=docker \
 		--kubernetes-version=$$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt) \
-		--memory=8192 \
+		--memory=8g \
+		--cpus=2 \
 		--bootstrapper=kubeadm \
 		--extra-config=kubeadm.node-name=minikube \
 		--extra-config=kubelet.hostname-override=minikube
@@ -54,6 +54,7 @@ prometheus:
 		--set=service.type=NodePort \
 		--create-namespace --namespace=monitoring
 	kubectl wait --for=condition=Ready pods --all -n monitoring --timeout=300s
+	helm list -n monitoring
 	killall kubectl || kubectl -n monitoring port-forward svc/prometheus-server 9090:80 &
 
 .PHONY: get-events
@@ -66,11 +67,10 @@ test: ## Generate traffic and test app
 
 .PHONY: clean
 clean:
-	echo "You are about to delete minikube cluster."
+	echo "You are about to stop minikube cluster."
 	echo "Are you sure? (Press Enter to continue or Ctrl+C to abort) "
 	read _
 	eval $$(minikube docker-env --unset)
-	kubectl delete -f deploy/minikube/manifest.yaml || true
-	minikube delete
+	minikube stop # delete
 
 -include include.mk
