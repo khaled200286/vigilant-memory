@@ -11,7 +11,7 @@ all:
 .PHONY: build
 build: ## Build containers
 	docker-compose build
-	if [ -z "`git status --porcelain`" ]; then docker tag $(image):latest $(image):$(shell git rev-parse HEAD)); fi
+	if [ -z "`git status --porcelain`" ]; then docker tag $(image):latest $(image):$(shell git rev-parse HEAD); fi
 
 .PHONY: up-develop
 up-develop: ## Create and start develop containers
