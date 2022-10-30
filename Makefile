@@ -16,6 +16,7 @@ bootstrap:
 
 .PHONY: minikube
 minikube: bootstrap
+	set -x
 	echo "You are about to create minikube cluster."
 	echo "Are you sure? (Press Enter to continue or Ctrl+C to abort) "
 	read _
@@ -25,7 +26,7 @@ minikube: bootstrap
 		rm -rf minikube-linux-amd64; \
 	fi
 	eval $$(minikube docker-env --unset) || true
-	minikube stop 2> /dev/null || minikube start \
+	minikube start \
 		--driver=docker \
 		--kubernetes-version=$$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt) \
 		--memory=8g \
@@ -56,6 +57,7 @@ prometheus:
 		--set=service.type=NodePort \
 		--create-namespace --namespace=monitoring
 	kubectl wait --for=condition=Ready pods --all -n monitoring --timeout=300s
+	kubectl wait deployment prometheus-server -n monitoring --for condition=Available=True --timeout=90s
 	helm list -n monitoring
 	#killall kubectl || kubectl -n monitoring port-forward svc/prometheus-server 9090:80 &
 	minikube service -n monitoring prometheus-server &
