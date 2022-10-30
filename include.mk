@@ -1,8 +1,9 @@
 APP := weather-forecast-api
-weather-forecast-api-build:
+
+build weather-forecast-api-build:
 	./build.sh
 
-weather-forecast-api-deploy-RollingUpdate:
+weather-forecast-api-deploy weather-forecast-api-deploy-RollingUpdate:
 	kubectl apply -f ./deploy/RollingUpdate/manifest.yaml
 	kubectl wait --for=condition=Ready pods --timeout=300s -l "app=weather-forecast-api"
 
@@ -20,6 +21,9 @@ weather-forecast-api-deploy-BlueGreen-switch:
 
 weather-forecast-api-clean:
 	kubectl delete all -l app=$(APP)
+
+weather-forecast-api-ingress:
+	kubectl create ingress weather-forecast-api --class=nginx --rule="weather-forecast-api.local/*=weather-forecast-api:80" || true
 
 weather-forecast-api-open:
 	xdg-open $$(minikube service weather-forecast-api --url)/WeatherForecast

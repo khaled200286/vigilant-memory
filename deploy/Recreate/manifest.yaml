@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: weather-forecast-api
-        image: "minikube/weather-forecast-api:v.0.0.1"
+        image: "minikube/weather-forecast-api:latest"
         # Disable bellow if using public image  
         imagePullPolicy: Never
         ports:
@@ -38,7 +38,7 @@ spec:
            containerPort: 80 # TODO
         env:
          - name: VERSION
-           value: v1.0.1
+           value: recreate
         livenessProbe:
           httpGet:
             path: /version # TODO

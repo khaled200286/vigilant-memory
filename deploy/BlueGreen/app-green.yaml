@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: weather-forecast-api-green
-        image: "minikube/weather-forecast-api:latest" # change here
+        image: "minikube/weather-forecast-api:v0.0.2" # change here
         # Disable bellow if using public image
         imagePullPolicy: Never
         ports:

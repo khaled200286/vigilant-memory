@@ -1,7 +1,8 @@
 MAKEFLAGS += --silent
 
-all: minikube prometheus
+all: minikube prometheus ingress-nginx
 
+.PHONY: bootstrap
 bootstrap:
 	if ! [ -x "$$(command -v kubectl)" ]; then \
 		curl -LO "https://dl.k8s.io/release/$$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"; \
@@ -16,7 +17,6 @@ bootstrap:
 
 .PHONY: minikube
 minikube: bootstrap
-	set -x
 	echo "You are about to create minikube cluster."
 	echo "Are you sure? (Press Enter to continue or Ctrl+C to abort) "
 	read _
@@ -62,13 +62,31 @@ prometheus:
 	#killall kubectl || kubectl -n monitoring port-forward svc/prometheus-server 9090:80 &
 	minikube service -n monitoring prometheus-server &
 
-.PHONY: nginx
-nginx:
-	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx || true
-	helm repo add nginx-stable https://helm.nginx.com/stable || true
-	helm repo update
-	helm upgrade --install nginx nginx-stable/nginx-ingress \
-		--create-namespace --namespace=nginx
+.PHONY: ingress-nginx
+ingress-nginx:
+	# helm show values ingress-nginx --repo https://kubernetes.github.io/ingress-nginx
+	helm upgrade --install ingress-nginx ingress-nginx \
+		--repo https://kubernetes.github.io/ingress-nginx \
+		--set=controller.service.type=NodePort \
+		--namespace ingress-nginx --create-namespace
+	kubectl get pods --namespace=ingress-nginx
+	kubectl wait --namespace ingress-nginx \
+		--for=condition=ready pod \
+		--selector=app.kubernetes.io/component=controller \
+		--timeout=120s
+	killall kubectl || kubectl port-forward --namespace=ingress-nginx service/ingress-nginx-controller 8080:80 &
+
+.PHONY: ingress-nginx
+ingress-nginx-demo:
+	kubectl create deployment demo --image=httpd --port=80
+	kubectl expose deployment demo
+	kubectl create ingress demo --class=nginx --rule="www.demo.io/*=demo:80" # --tls:- hosts: - www.demo.io secretName: demo-tls
+	kubectl wait --for=condition=Ready pods --timeout=300s -l "app=demo"
+	sleep 1
+	curl -sL localhost:8080 -H "Host: www.demo.io"
+	sleep 3
+	kubectl delete ing demo
+	kubectl delete pods,services,deployments -l app=demo
 
 .PHONY: get-events
 get-events:
@@ -84,6 +102,6 @@ clean:
 	echo "Are you sure? (Press Enter to continue or Ctrl+C to abort) "
 	read _
 	eval $$(minikube docker-env --unset)
-	minikube stop # delete
+	minikube stop
 
 -include include.mk
