@@ -1,6 +1,6 @@
 APP := weather-forecast-api
 weather-forecast-api-build:
-	pushd ./src; ./minikube-build-local.sh; popd
+	./build.sh
 
 weather-forecast-api-deploy-RollingUpdate:
 	kubectl apply -f ./deploy/RollingUpdate/manifest.yaml
@@ -16,7 +16,7 @@ weather-forecast-api-deploy-BlueGreen:
 	kubectl apply -f ./deploy/BlueGreen/service.yaml
 
 weather-forecast-api-deploy-BlueGreen-switch:
-	pushd ./deploy/BlueGreen; ./switch.sh; popd
+	./deploy/BlueGreen/switch.sh
 
 weather-forecast-api-clean:
 	kubectl delete all -l app=$(APP)
