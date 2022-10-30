@@ -1,6 +1,6 @@
 MAKEFLAGS += --silent
 
-.DEFAULT_GOAL := minikube
+all: minikube prometheus
 
 bootstrap:
 	if ! [ -x "$$(command -v kubectl)" ]; then \
@@ -25,7 +25,7 @@ minikube: bootstrap
 		rm -rf minikube-linux-amd64; \
 	fi
 	eval $$(minikube docker-env --unset) || true
-	minikube start \
+	minikube stop 2> /dev/null || minikube start \
 		--driver=docker \
 		--kubernetes-version=$$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt) \
 		--memory=8g \
@@ -57,7 +57,8 @@ prometheus:
 		--create-namespace --namespace=monitoring
 	kubectl wait --for=condition=Ready pods --all -n monitoring --timeout=300s
 	helm list -n monitoring
-	killall kubectl || kubectl -n monitoring port-forward svc/prometheus-server 9090:80 &
+	#killall kubectl || kubectl -n monitoring port-forward svc/prometheus-server 9090:80 &
+	minikube service -n monitoring prometheus-server &
 
 .PHONY: get-events
 get-events:

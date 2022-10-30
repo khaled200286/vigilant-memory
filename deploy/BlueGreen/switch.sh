@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x
 set -e
 set -o pipefail
 
@@ -11,21 +11,17 @@ items=("blue" "green")
         
 switch_incoming_traffic() { 
   case "$COLOR" in
-    blue)
-      patch_service "$COLOR" green
-      exit ;;
-    green) 
-      patch_service "$COLOR" blue
-      exit ;;
-    *)
-      get_status
-       exit;;
+    blue|green) patch_service "$COLOR"; exit ;;
+    *) get_status; exit;;
   esac
 }
 
 patch_service() {
   local new="$1"
-  local old="$2"
+  case "$new" in
+    blue) old="${items[1]}";;
+    green) old="${items[0]}";;
+  esac
   kubectl apply -f "$SCRIPT_ROOT"/app-"$new".yaml || true
   kubectl wait --for=condition=Ready pods --timeout=300s -l "color=$new"
   kubectl patch service "$service" -p "{\"spec\":{\"selector\":{\"color\": \"${new}\" }}}"
@@ -35,16 +31,21 @@ patch_service() {
 }
 
 get_status() {
+  echo
   kubectl get po -o wide
   kubectl get svc/$service -o wide
 }
 
-if [ -z "$COLOR" ]; then
-  echo "[$SCRIPT_ROOT/$(basename "$0")] Choose the color to run from the blue/green deployment strategy:"
-  select COLOR in "${items[@]}";
-  do
-    switch_incoming_traffic
-  done
-else
-  switch_incoming_traffic "$COLOR"
-fi
+main() {
+  if [ -z "$COLOR" ]; then
+    echo "$SCRIPT_ROOT/$(basename "$0") - Choose configuration manifest to run from the blue/green deployment strategy: "
+    select COLOR in "${items[@]}";
+    do
+      switch_incoming_traffic
+    done
+  else
+    switch_incoming_traffic "$COLOR"
+  fi
+}
+
+main "$@"
