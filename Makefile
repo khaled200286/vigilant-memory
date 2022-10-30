@@ -52,7 +52,7 @@ minikube-status:
 .PHONY: prometheus
 prometheus:
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
-	helm repo update # helm show values prometheus-community/prometheus
+	helm repo update
 	helm upgrade --install prometheus prometheus-community/prometheus \
 		--set=service.type=NodePort \
 		--create-namespace --namespace=monitoring
@@ -61,6 +61,14 @@ prometheus:
 	helm list -n monitoring
 	#killall kubectl || kubectl -n monitoring port-forward svc/prometheus-server 9090:80 &
 	minikube service -n monitoring prometheus-server &
+
+.PHONY: nginx
+nginx:
+	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx || true
+	helm repo add nginx-stable https://helm.nginx.com/stable || true
+	helm repo update
+	helm upgrade --install nginx nginx-stable/nginx-ingress \
+		--create-namespace --namespace=nginx
 
 .PHONY: get-events
 get-events:
