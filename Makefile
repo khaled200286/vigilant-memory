@@ -2,7 +2,7 @@ MAKEFLAGS += --silent
 
 .DEFAULT_GOAL := minikube
 
-setup:
+bootstrap:
 	if ! [ -x "$$(command -v kubectl)" ]; then \
 		curl -LO "https://dl.k8s.io/release/$$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"; \
 		sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl; \
@@ -15,7 +15,7 @@ setup:
 	echo "$@: done."
 
 .PHONY: minikube
-minikube: setup
+minikube: bootstrap
 	echo "You are about to create minikube cluster."
 	echo "Are you sure? (Press Enter to continue or Ctrl+C to abort) "
 	read _
@@ -43,10 +43,12 @@ minikube: setup
 	kubectl wait --for=condition=Ready pods --all --all-namespaces --timeout=300s
 	kubectl get all -A
 
+.PHONY: minikube-status
 minikube-status:
 	minikube ssh docker images
 	minikube service list
 
+.PHONY: prometheus
 prometheus:
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
 	helm repo update # helm show values prometheus-community/prometheus

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Build a docker image inside minikube
 
 set -x
 set -e
