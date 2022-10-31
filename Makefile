@@ -1,9 +1,14 @@
 MAKEFLAGS += --silent
 
-all: minikube prometheus ingress-nginx
+.DEFAULT_GOAL := all
 
-.PHONY: bootstrap
-bootstrap:
+.PHONY: all
+all: clean setup minikube install-prometheus install-ingress-nginx
+	echo ""
+	echo "URL: 'http://localhost:8080'"
+
+.PHONY: setup
+setup:
 	if ! [ -x "$$(command -v kubectl)" ]; then \
 		curl -LO "https://dl.k8s.io/release/$$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"; \
 		sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl; \
@@ -16,7 +21,7 @@ bootstrap:
 	echo "$@: done."
 
 .PHONY: minikube
-minikube: bootstrap
+minikube: setup
 	echo "You are about to create minikube cluster."
 	echo "Are you sure? (Press Enter to continue or Ctrl+C to abort) "
 	read _
@@ -35,8 +40,6 @@ minikube: bootstrap
 		--extra-config=kubeadm.node-name=minikube \
 		--extra-config=kubelet.hostname-override=minikube
 	minikube addons disable metrics-server
-	#minikube addons enable ingress
-	#minikube addons enable ingress-dns
 	#minikube addons list
 	kubectl config set-context minikube --namespace default
 	kubectl cluster-info
@@ -49,8 +52,8 @@ minikube-status:
 	minikube ssh docker images
 	minikube service list
 
-.PHONY: prometheus
-prometheus:
+.PHONY: install-prometheus
+install-prometheus:
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
 	helm repo update
 	helm upgrade --install prometheus prometheus-community/prometheus \
@@ -62,19 +65,26 @@ prometheus:
 	#killall kubectl || kubectl -n monitoring port-forward svc/prometheus-server 9090:80 &
 	minikube service -n monitoring prometheus-server &
 
-.PHONY: ingress-nginx
-ingress-nginx:
+.PHONY: install-ingress-nginx
+install-ingress-nginx:
 	# helm show values ingress-nginx --repo https://kubernetes.github.io/ingress-nginx
 	helm upgrade --install ingress-nginx ingress-nginx \
 		--repo https://kubernetes.github.io/ingress-nginx \
+    --set controller.updateStrategy.rollingUpdate.maxUnavailable=25% \
+		--set controller.updateStrategy.type=RollingUpdate \
+    --set controller.metrics.enabled=true \
 		--set=controller.service.type=NodePort \
-		--namespace ingress-nginx --create-namespace
+		--namespace ingress-nginx \
+		--create-namespace
 	kubectl get pods --namespace=ingress-nginx
 	kubectl wait --namespace ingress-nginx \
 		--for=condition=ready pod \
 		--selector=app.kubernetes.io/component=controller \
 		--timeout=120s
+	
+ingress-nginx-port-forward:
 	killall kubectl || kubectl port-forward --namespace=ingress-nginx service/ingress-nginx-controller 8080:80 &
+	curl -D- http://localhost:8080
 
 .PHONY: ingress-nginx
 ingress-nginx-demo:
@@ -83,7 +93,7 @@ ingress-nginx-demo:
 	kubectl create ingress demo --class=nginx --rule="www.demo.io/*=demo:80" # --tls:- hosts: - www.demo.io secretName: demo-tls
 	kubectl wait --for=condition=Ready pods --timeout=300s -l "app=demo"
 	sleep 1
-	curl -sL localhost:8080 -H "Host: www.demo.io"
+	curl -D- http://localhost:8080 -H "Host: www.demo.io"
 	sleep 3
 	kubectl delete ing demo
 	kubectl delete pods,services,deployments -l app=demo
