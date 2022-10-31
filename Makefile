@@ -104,6 +104,7 @@ get-events:
 
 .PHONY: test
 test: ## Generate traffic and test app
+	if [ "$$(minikube status -f'{{.Kubelet}}'|xargs)" == "Stopped" ];then echo "Minikube not running !"; exit 1; fi
 	[ -f ./tests/test.sh ] && ./tests/test.sh
 
 .PHONY: clean

@@ -16,7 +16,7 @@ make bootstrap
 
 ## Build
 ```
-make build
+make build.minikube
 ```
 
 ## Test

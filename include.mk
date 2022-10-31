@@ -1,6 +1,6 @@
 APP := weather-forecast-api
 
-build weather-forecast-api-build:
+build.minikube weather-forecast-api-build:
 	./build.sh
 
 weather-forecast-api-deploy-ingress:
@@ -28,7 +28,7 @@ weather-forecast-api-open:
 
 weather-forecast-api-status:
 	kubectl get all -o wide
-	for pod in $$(kubectl get po --output=jsonpath={.items..metadata.name}); do echo $$pod && kubectl exec -it $$pod -- env; done
+	#for pod in $$(kubectl get po --output=jsonpath={.items..metadata.name}); do echo $$pod && kubectl exec -it $$pod -- env; done
 
 weather-forecast-api-curl-test:
 	kubectl run -it --rm --image=curlimages/curl --restart=Never curl-test -- \
