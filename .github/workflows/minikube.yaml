@@ -15,12 +15,14 @@ on:
 
 env:
   APP: weather-forecast-api
-  IMAGE_NAME: minikube/${{ env.APP }}
+  IMAGE_NAME: minikube/weather-forecast-api
 
 jobs:
   minikube-ci:
     runs-on: ubuntu-latest
-    name: build and deploy to minikube
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - uses: actions/checkout@v2
@@ -38,10 +40,11 @@ jobs:
           docker build -f ./Dockerfile -t ${{ env.IMAGE_NAME }} .
           echo -n "verifying images:"
           docker image ls ${{ env.IMAGE_NAME }}
+          eval $(minikube docker-env --unset)
 
       - name: Deploy app to minikube
-        run:
-          kubectl apply -f ./deploy/strategies/RollingUpdate/manifest.yaml
+        run: |
+          kubectl apply -f ./deploy/RollingUpdate/manifest.yaml
           kubectl wait --for=condition=Ready pods --timeout=300s -l "app=${{ env.APP }}"
 
       - name: Test service URLs
@@ -49,6 +52,5 @@ jobs:
           minikube service list
           minikube service ${{ env.APP }} --url
           echo "------------------opening the service------------------"
-          curl $(minikube service ${{ env.APP }} --url)/
-          eval $(minikube docker-env --unset)
+          curl -sSL $(minikube service ${{ env.APP }} --url)/
           minikube delete
