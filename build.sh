@@ -5,7 +5,7 @@
 set -e
 set -o pipefail
 
-app="weather-forecast-api"
+app="$1"
 img="minikube/$app" # must be lowercase
 
 pushd src
