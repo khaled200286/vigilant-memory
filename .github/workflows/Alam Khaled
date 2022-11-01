@@ -1,4 +1,4 @@
-# Deployment instructions:
+# Deployment 050376 instructions:
 #
 # 1) Create new Azure service principal (SP):
 #    `az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/$SUBSCRIPTION_ID"
