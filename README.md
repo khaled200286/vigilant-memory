@@ -1,4 +1,6 @@
 ## Introduction 
+[![ci](https://github.com/atrakic/weather-forecast-api/actions/workflows/ci.yaml/badge.svg)](https://github.com/atrakic/weather-forecast-api/actions/workflows/ci.yaml)
+[![minikube](https://github.com/atrakic/weather-forecast-api/actions/workflows/minikube.yaml/badge.svg)](https://github.com/atrakic/weather-forecast-api/actions/workflows/minikube.yaml)
 [![release](https://github.com/atrakic/weather-forecast-api/actions/workflows/release.yaml/badge.svg)](https://github.com/atrakic/weather-forecast-api/actions/workflows/release.yaml)
 
 - [.NET SDK 5.0](https://dotnet.microsoft.com/download/dotnet/5..0) - API backend .NET API demo that includes pipelines to build, deploy on Azure. 
