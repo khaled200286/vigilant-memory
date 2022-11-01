@@ -1,10 +1,12 @@
 ## Introduction 
-Examples for deployment pipelines and strategies with GitHub Actions.
+[![release](https://github.com/atrakic/weather-forecast-api/actions/workflows/release.yaml/badge.svg)](https://github.com/atrakic/weather-forecast-api/actions/workflows/release.yaml)
+
+- [.NET SDK 5.0](https://dotnet.microsoft.com/download/dotnet/5..0) - API backend .NET API demo that includes pipelines to build, deploy on Azure. 
 
 ## Requirements
 Linux with sudo and [docker](https://docs.docker.com/engine/install/).
 
-## Getting Started
+## Quickstart
 1. Fork this repo
 2. Install developer environment with additional tools:
 
@@ -34,8 +36,7 @@ make clean
 
 ## Contributing
 
-1. Have an idea for a cool workflow
-2. Fork the repository
-3. Implement and test your workflow
-4. Describe it shortly in the README
-5. Open a pull request
+1. Fork the repository
+2. Implement and test your workflow
+3. Describe it shortly in the README
+4. Open a pull request
