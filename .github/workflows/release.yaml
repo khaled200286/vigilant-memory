@@ -27,7 +27,7 @@ permissions:
 env:
   AZURE_WEBAPP_NAME: '${{ github.actor }}-${{ github.run_id }}'    # The name of your Azure Web App. Should be unique.
   REGISTRY: ghcr.io
-  IMAGE_NAME: 'weather-forecast-api' # ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }}
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
