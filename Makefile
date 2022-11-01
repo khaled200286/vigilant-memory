@@ -7,9 +7,11 @@ APP := weather-forecast-api
 build weather-forecast-api-build:
 	./build.sh $(APP)
 
+deploy: weather-forecast-api-deploy-ingress weather-forecast-api-deploy
+	curl -D- http://localhost:8080 -H "Host: $(APP).local"
+
 weather-forecast-api-deploy-ingress:
 	kubectl create ingress weather-forecast-api --class=nginx --rule="$(APP).local/*=$(APP):80" || true
-	curl -D- http://localhost:8080 -H "Host: $(APP).local"
 
 weather-forecast-api-deploy weather-forecast-api-deploy-RollingUpdate:
 	kubectl apply -f ./deploy/RollingUpdate/manifest.yaml
